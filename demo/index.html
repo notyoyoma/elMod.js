@@ -5,18 +5,40 @@
   <meta charset="utf-8" />
   <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <script src="../elmod.js" type="text/javascript" charset="utf-8"></script>
+  <link rel="stylesheet" href="style.css" type="text/css" media="all" />
 </head>
 <body>
   <header>
     <h1>elMod.js</h1>
   </header>
   <div class="wrap">
-    <div style="width:50%;float:left;">
-      <h2>Form:</h2>
+    <h2>Code:</h2>
+      <div class="half">
+        <h3>HTML</h3>
+        <pre>&lt;div id="el"&gt;Click to modify me&lt;/div&gt;</pre>
+      </div>
+      <div class="half">
+        <h3>JS</h3>
+        <pre>
+$('#el').elModInit(
+  [
+    { title: "Align", fields: ["text-align", "vertical-align"]},
+    { title: "Colors", fields: ["background-color", "color"]},
+    { title: "Advanced", fields: ["transform", "box-shadow", "border-radius"], hidden: true }
+  ]
+);
+$('#el').click(function() {
+  $('#form').append($(this).elMod());
+});
+        </pre>
+      </div>
+    <h2>Output::</h2>
+    <div class="half">
+      <h3>Form:</h3>
       <div id="form"></div>
     </div>
-    <div style="width:50%;float:left;">
-      <h2>Element:</h2>
+    <div class="half">
+      <h3>Element:</h3>
       <div id="el">Click to modify me</div>
     </div>
   </div>
