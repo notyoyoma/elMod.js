@@ -5,52 +5,81 @@
     ATTR: "data-modifies",
     COLCOUNT: 12,
     COLCLASS: "col-xs-",
-    types: {
-      color: function($this, property, label) {
-        var tmpl = $('<input type="text" placeholder="'+label+'">');
-        tmpl.on('keypress keyup change blur', function() {
-          $this.css(property, $(this).val());
-          $(this).css('background', $(this).val());
-        });
-        return tmpl;
-      },
-      text: function($this) {
-        var tmpl = $('<input type="text">');
-        return tmpl;
-      },
-      'text-align': function($this) {
-        var tmpl = $('<div>');
-        tmpl.append($('<input type="radio" name="text-align" id="left"><label for="left">Left</label>'));
-        tmpl.append($('<input type="radio" name="text-align" id="center"><label for="center">Center</label>'));
-        tmpl.append($('<input type="radio" name="text-align" id="right"><label for="right">Right</label>'));
-        tmpl.find('input').change(function() {
-          $this.css('text-align', $(this).attr('id'));
-        });
-        return tmpl;
-      },
-      'vertical-align': function($this) {
-        if ($this.css('display') !== "table") {
-          var content = $this.text();
-          $this.empty();
-          $this.append('<div style="display:table"><div style="display:table-row"><div style="display:table-cell" class="v-align-table-cell">'+content+'</div></div></div>')
-        }
-        var tmpl = $('<div>');
-        tmpl.append($('<input type="radio" name="vertical-align" id="top"><label for="top">Top</label>'));
-        tmpl.append($('<input type="radio" name="vertical-align" id="middle"><label for="middle">Middle</label>'));
-        tmpl.append($('<input type="radio" name="vertical-align" id="bottom"><label for="bottom">Bottom</label>'));
-        tmpl.find('input').change(function() {
-          $this.find('.v-align-table-cell').css('vertical-align', $(this).attr('id'));
-        });
-        return tmpl;
+    FONTS: [ "Arial", "Comic Sans MS", "Courier", "Geneva", "Georgia", "Helvetica", "Impact",
+      "Lucida Console", "Lucida Sans Unicode", "Palatino Linotype", "Times New Roman", "Trebuchet MS", "Verdana"],
+  };
+  options.types = {
+    'color': function($this, property, label) {
+      var tmpl = $('<input type="text" placeholder="'+label+'">');
+      tmpl.on('keypress keyup change blur', function() {
+        $this.css(property, $(this).val());
+        $(this).css('background', $(this).val());
+      });
+      return tmpl;
+    },
+    'text': function($this) {
+      var tmpl = $('<input type="text">');
+      return tmpl;
+    },
+    'text-align': function($this) {
+      var tmpl = $('<div>');
+      tmpl.append($('<input type="radio" name="text-align" id="left"><label for="left">Left</label>'));
+      tmpl.append($('<input type="radio" name="text-align" id="center"><label for="center">Center</label>'));
+      tmpl.append($('<input type="radio" name="text-align" id="right"><label for="right">Right</label>'));
+      tmpl.find('input').change(function() {
+        $this.css('text-align', $(this).attr('id'));
+      });
+      return tmpl;
+    },
+    'vertical-align': function($this) {
+      if ($this.css('display') !== "table") {
+        var content = $this.text();
+        $this.empty();
+        $this.css('display', 'table');
+        $this.append('<div style="display:table-row"><div style="display:table-cell" class="v-align-table-cell">'+content+'</div></div>')
       }
+      var tmpl = $('<div>');
+      tmpl.append($('<input type="radio" name="vertical-align" id="top"><label for="top">Top</label>'));
+      tmpl.append($('<input type="radio" name="vertical-align" id="middle"><label for="middle">Middle</label>'));
+      tmpl.append($('<input type="radio" name="vertical-align" id="bottom"><label for="bottom">Bottom</label>'));
+      tmpl.find('input').change(function() {
+        $this.find('.v-align-table-cell').css('vertical-align', $(this).attr('id'));
+      });
+      return tmpl;
+    },
+    'dimension': function($this, property, label) {
+      var tmpl = $('<div>'+label+':</div>');
+      tmpl.append($('<input type="number">'));
+      tmpl.append($('<select><option>px</option><option>%</option><option>em</option><option>rem</option></select>'));
+      tmpl.find('input, select').on( 'change keyup keypress', function() {
+        $this.css(property, tmpl.find('input').val()+tmpl.find('select').val());
+      });
+      return tmpl;
+    },
+    'font-family': function($this, property) {
+      var tmpl = $('<select>')
+          i = 0;
+      for (i; i < options.FONTS.length; i += 1) {
+        tmpl.append('<option>'+options.FONTS[i]+'</option>');
+      }
+      tmpl.change(function() {
+        $this.css(property, $(this).val());
+      });
+      return tmpl;
     },
   };
   options.propertyMap = {
-    'background-color':  function($this, property) { return options.types.color($this, property, "Background Color" ); },
-    'color':             function($this, property) { return options.types.color($this, property, "Text Color" ); },
-    'border-color':      function($this, property) { return options.types.color($this, property, "Border Color" ); },
-    'text-align':        function($this, property) { return options.types['text-align']($this, property, "Text Align"); },
-    'vertical-align':        function($this, property) { return options.types['vertical-align']($this, property, "Vertical Align"); },
+    'background-color':  { type: options.types['color'] },
+    'color':             { type: options.types['color'], label: "Text Color" },
+    'border-color':      { type: options.types['color'] },
+    'text-align':        { type: options.types['text-align'] },
+    'vertical-align':    { type: options.types['vertical-align'] },
+    'width':             { type: options.types['dimension'] },
+    'height':            { type: options.types['dimension'] },
+    'margin':            { type: options.types['dimension'] },
+    'padding':           { type: options.types['dimension'] },
+    'font-size':         { type: options.types['dimension'] },
+    'font-family':       { type: options.types['font-family'], label: "Font" },
   };
   
   /* private class */
@@ -95,9 +124,16 @@
           row.hide();
         }
         for (var j = 0; j < cur.fields.length; j += 1) {
-          var input = cur.fields[j];
-          if (typeof input === "string" && options.propertyMap[input]) input = options.propertyMap[input]($this, input);
-          row.append( $('<div class="'+colClass+'">').append(input) );
+          var property = cur.fields[j];
+          if (typeof property === "string") {
+            if (options.propertyMap[property]) {
+              var label = options.propertyMap[property].label || property.replace('-', ' ').trim().replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+              property = options.propertyMap[property].type($this, property, label);
+            } else {
+              property = property + " has not been setup in ElMod.js.";
+            }
+          }
+          row.append( $('<div class="'+colClass+'">').append(property) );
         }
         this.form.append(fieldset.append(row));
       }
@@ -123,7 +159,7 @@
     $this.data('ElMod', mod);
   }
   // get form
-  $.fn.elMod = function() {
+  $.fn.elModGet = function() {
     var $this = $(this);
     if (!$this.data('ElMod')) return "Error: no form has been setup to modify this element";
     return $this.data('ElMod').getForm();
