@@ -1,5 +1,6 @@
 $('#el').elModInit(
   [
+    { title: "Text", fields: ["text"]},
     { title: "Font", fields: ["font-family", "font-size", 'font-weight', 'font-style']},
     { title: "Align", fields: ["text-align", "vertical-align"]},
     { title: "Colors", fields: ["background-color", "color"]},
