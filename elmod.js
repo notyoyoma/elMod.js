@@ -9,8 +9,34 @@
       "Lucida Console", "Lucida Sans Unicode", "Palatino Linotype", "Times New Roman", "Trebuchet MS", "Verdana"],
   };
   options.types = {
-    'color': function($this, property, label) {
-      var tmpl = $('<input type="text" placeholder="'+label+'">');
+    '_select': function($this, property, opts) {
+      if (!opts && !opts.options) return 'error: _select needs options.';
+      var tmpl = $('<select>')
+          i = 0;
+      for (i; i < options.FONTS.length; i += 1) {
+        tmpl.append('<option>'+options.FONTS[i]+'</option>');
+      }
+      tmpl.val($this.css(property));
+      tmpl.change(function() {
+        $this.css(property, $(this).val());
+      });
+      return tmpl;
+    },
+    'dimension': function($this, property, opts) {
+      var tmpl = $('<div>'+opts.label+':</div>');
+      tmpl.append($('<input type="number">'));
+      tmpl.append($('<select><option>px</option><option>%</option><option>em</option><option>rem</option></select>'));
+      tmpl.find('input').val(parseInt($this.css(property)));
+      tmpl.find('select').val($this.css(property).replace(/\d/g, ''));
+      tmpl.find('input, select').on( 'change keyup keypress', function() {
+        $this.css(property, tmpl.find('input').val()+tmpl.find('select').val());
+      });
+      return tmpl;
+    },
+    'color': function($this, property, opts) {
+      var tmpl = $('<input type="text" placeholder="'+opts.label+'">');
+      tmpl.val($this.css(property));
+      tmpl.css('background', tmpl.val());
       tmpl.on('keypress keyup change blur', function() {
         $this.css(property, $(this).val());
         $(this).css('background', $(this).val());
@@ -19,6 +45,10 @@
     },
     'text': function($this) {
       var tmpl = $('<input type="text">');
+      tmpl.val($this.deepestChild().first().text());
+      tmpl.on('change keyup', function() {
+        $this.deepestChild().first().text($(this).val());
+      });
       return tmpl;
     },
     'text-align': function($this) {
@@ -26,6 +56,9 @@
       tmpl.append($('<input type="radio" name="text-align" id="left"><label for="left">Left</label>'));
       tmpl.append($('<input type="radio" name="text-align" id="center"><label for="center">Center</label>'));
       tmpl.append($('<input type="radio" name="text-align" id="right"><label for="right">Right</label>'));
+      var init_val = tmpl.find('#'+$this.css('text-align'));
+      if (!init_val.length) init_val = tmpl.find('input').first();
+      init_val.attr('checked', true);
       tmpl.find('input').change(function() {
         $this.css('text-align', $(this).attr('id'));
       });
@@ -42,44 +75,54 @@
       tmpl.append($('<input type="radio" name="vertical-align" id="top"><label for="top">Top</label>'));
       tmpl.append($('<input type="radio" name="vertical-align" id="middle"><label for="middle">Middle</label>'));
       tmpl.append($('<input type="radio" name="vertical-align" id="bottom"><label for="bottom">Bottom</label>'));
+      var init_val = tmpl.find('#'+$this.css('text-align'));
+      if (!init_val.length) init_val = tmpl.find('input').first();
+      init_val.attr('checked', true);
       tmpl.find('input').change(function() {
         $this.find('.v-align-table-cell').css('vertical-align', $(this).attr('id'));
       });
       return tmpl;
     },
-    'dimension': function($this, property, label) {
-      var tmpl = $('<div>'+label+':</div>');
-      tmpl.append($('<input type="number">'));
-      tmpl.append($('<select><option>px</option><option>%</option><option>em</option><option>rem</option></select>'));
-      tmpl.find('input, select').on( 'change keyup keypress', function() {
-        $this.css(property, tmpl.find('input').val()+tmpl.find('select').val());
-      });
-      return tmpl;
-    },
-    'font-family': function($this, property) {
-      var tmpl = $('<select>')
-          i = 0;
-      for (i; i < options.FONTS.length; i += 1) {
-        tmpl.append('<option>'+options.FONTS[i]+'</option>');
-      }
-      tmpl.change(function() {
-        $this.css(property, $(this).val());
-      });
-      return tmpl;
-    },
   };
+  /* Supported CSS properties
+      Text:
+        text-align,font-size,font-family,font-weight,font-style,text-transform,
+        text-decoration,letter-spacing,word-spacing,line-height,white-space
+      Background:
+        background-color,background-image,background-repeat,background-position,
+        background-attachment
+      Dimensions:
+        width,height
+        Padding:
+          padding-top,padding-right,padding-bottom,padding-left
+        Margin:
+          margin-top,margin-right,margin-bottom,margin-left
+      Position:
+        position,top,right,bottom,left,z-index,float,clear
+      Border:
+        border-top-width,border-right-width,border-bottom-width,
+        border-left-width,border-top-color,border-right-color,
+        border-bottom-color,border-left-color,border-top-style,
+        border-right-style,border-bottom-style,border-left-style
+      Display:
+        display,visibility,opacity
+      Misc:
+        vertical-align,overflow-x,overflow-y,clip,cursor,
+        list-style-image,list-style-position,list-style-type,marker-offset
+   */
   options.propertyMap = {
     'background-color':  { type: options.types['color'] },
-    'color':             { type: options.types['color'], label: "Text Color" },
     'border-color':      { type: options.types['color'] },
-    'text-align':        { type: options.types['text-align'] },
-    'vertical-align':    { type: options.types['vertical-align'] },
-    'width':             { type: options.types['dimension'] },
+    'color':             { type: options.types['color'], opts: {label: "Text Color"} },
+    'font-family':       { type: options.types['_select'], opts: {label: "Font", options: options.FONTS} },
+    'font-size':         { type: options.types['dimension'] },
     'height':            { type: options.types['dimension'] },
     'margin':            { type: options.types['dimension'] },
     'padding':           { type: options.types['dimension'] },
-    'font-size':         { type: options.types['dimension'] },
-    'font-family':       { type: options.types['font-family'], label: "Font" },
+    'text':              { type: options.types['text'] },
+    'text-align':        { type: options.types['text-align'] },
+    'vertical-align':    { type: options.types['vertical-align'] },
+    'width':             { type: options.types['dimension'] },
   };
   
   /* private class */
@@ -126,9 +169,16 @@
         for (var j = 0; j < cur.fields.length; j += 1) {
           var property = cur.fields[j];
           if (typeof property === "string") {
-            if (options.propertyMap[property]) {
-              var label = options.propertyMap[property].label || property.replace('-', ' ').trim().replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-              property = options.propertyMap[property].type($this, property, label);
+            var mapped = options.propertyMap[property];
+            if (mapped) {
+              var optOverrides = {};
+              if (!mapped.opts || !mapped.opts.label) {
+                // if the opt.label is not set, generate a label based on @property
+                optOverrides.label = property.replace('-', ' ').trim().replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+              }
+              var opts = $.extend({}, mapped.opts, optOverrides);
+              // Get the form elements for @property
+              property = mapped.type($this, property, opts);
             } else {
               property = property + " has not been setup in ElMod.js.";
             }
@@ -163,6 +213,22 @@
     var $this = $(this);
     if (!$this.data('ElMod')) return "Error: no form has been setup to modify this element";
     return $this.data('ElMod').getForm();
+  };
+
+  // Deepest Child function
+  $.fn.deepestChild = function() {
+    if ($(this).children().length==0)
+      return $(this);
+
+    var $target = $(this).children(),
+        $next = $target;
+
+    while( $next.length ) {
+      $target = $next;
+      $next = $next.children();
+    }
+
+    return $target;
   };
   
 })(jQuery);
