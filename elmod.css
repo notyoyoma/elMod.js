@@ -1,0 +1,25 @@
+legend.elmod-open:after {
+  content:" -";
+}
+legend.elmod-closed:after {
+  content:" +";
+}
+.elmod-field {
+  position:relative;
+}
+.elmod-field input[type=text],
+.elmod-field input[type=number],
+.elmod-field select {
+  margin:0;
+  padding:0 0.25em;;
+  line-height:1.5em;
+}
+span.elmod-static-unit {
+  position:absolute;
+  display:inline-block;
+  bottom:0;
+  right:1.5em;
+  line-height:
+  margin:1px;
+  line-height:1.5em;
+}
