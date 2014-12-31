@@ -15,34 +15,39 @@
   </header>
   <div class="wrap">
     <h2>Code:</h2>
-      <div class="half">
+    <div class="row">
+      <div class="col-md-6">
         <h3>HTML</h3>
         <pre>&lt;div id="el"&gt;Click to modify me&lt;/div&gt;</pre>
       </div>
-      <div class="half">
+      <div class="col-md-6">
         <h3>JS</h3>
         <pre>
 $('#el').elModInit(
   [
-    { title: "Text", fields: ["text"]},
-    { title: "Font", fields: ["font-family", "font-size", 'font-weight', 'font-style']},
-    { title: "Align", fields: ["text-align", "vertical-align"]},
-    { title: "Colors", fields: ["background-color", "color"]},
-    { title: "Dimensions", fields: ["width", "height", "margin", "padding"]},
-    { title: "Advanced", fields: ["transform", "box-shadow", "border-radius"], hidden: true }
+    { legend: "Text",       fields: ["text", "text-transform", "text-decoration"]},
+    { legend: "Font",       fields: [["font-family", "font-size"], ["font-weight", "font-style"], ["color", "text-shadow"]]},
+    { legend: "Type",       fields: ["letter-spacing", "word-spacing", "line-height", "white-space"]},
+    { legend: "Align",      fields: ["text-align", "vertical-align"]},
+    { legend: "Background", fields: ["background-color", "background-image", "background-repeat"]},
+    { legend: "Dimensions", fields: ["width", "height", "margin", "padding"]},
+    { legend: "Advanced",   fields: ["transform", "box-shadow", "border-radius"], hidden: true }
   ]
 );
 $('#form').append($('#el').elModGet());
         </pre>
       </div>
-    <h2>Output::</h2>
-    <div class="half">
-      <h3>Form:</h3>
-      <div id="form"></div>
     </div>
-    <div class="half">
-      <h3>Element:</h3>
-      <div id="el">Modify Me</div>
+    <h2>Output::</h2>
+    <div class="row">
+      <div class="col-md-6">
+        <h3>Form:</h3>
+        <div id="form"></div>
+      </div>
+      <div class="col-md-6">
+        <h3>Element:</h3>
+        <div id="el">Modify Me</div>
+      </div>
     </div>
   </div>
   <script src="demo.js" type="text/javascript" charset="utf-8"></script>
